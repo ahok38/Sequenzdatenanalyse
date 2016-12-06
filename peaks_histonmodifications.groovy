@@ -1,9 +1,11 @@
 
 def file = new File("Data/BroadHistone_K562_ControlStdAln_Rep1.sam")
-String annotationFile = "test.bed"//"./shortTssAnnotationhg19.bed"
-String samFile = "test.sam"
+String annotationFile = "./shortTssAnnotationhg19_sorted.bed"
+String samFile = "short2.sam"
 
+hits = [:]
 keyList = []
+tmpHits = 0
 
 annotationMap = [:]
 def samMap = [:]
@@ -17,8 +19,12 @@ annotationMap.keySet().each{
 	println "${it} | Size = ${annotationMap.get(it).size()}"
 }
 
+println keyList
 
 readSamFiles(samFile)
+
+println hits
+println "Total Hits: ${tmpHits}"
 
 def readSamFiles(String path){
 	def map = [:]
@@ -26,28 +32,44 @@ def readSamFiles(String path){
 	def file = new File(path)
 	def cnt = 0
 	def tmp = annotationMap.get(keyList[cnt])
-	println "tmp: ${tmp}"
+	//println tmp
+	//println "tmp: ${tmp}"
 	def j = 0
-	def hits = 0
 
-	file.each{
+	file.eachLine{
 		def (value1, value2) = it.tokenize( ' ' )
-		println "value1 = ${value1} | ${value1.getClass()} & keyList[cnt] = ${keyList[cnt]} | ${keyList[cnt].getClass()}"
+		//println "value1 = ${value1} | keyList[cnt] = ${keyList[cnt]}"
+		//println "value1 = ${value1} | ${value1.getClass()} & keyList[cnt] = ${keyList[cnt]} | ${keyList[cnt].getClass()}"
+		//println "value2 = ${value2.toInteger()} | ${value2.toInteger().getClass()} & tmp = ${tmp[0]} | ${tmp[0].getClass()}"
 		if(value1 == keyList[cnt]){
-			println "hey"
+			value2 = value2.toInteger()
 			while(j < tmp.size() && value2 < tmp[j]-1000){
 				j = j+1
+				//println "Diag: chr = ${value1}|${keyList[cnt]} j = ${j} | tmp[{$j}] = ${tmp[j]} & ${tmp[j].getClass()} | tmp.size = ${tmp.size()}"
 			}
-			while(j < tmp.size() && value2 < tmp[j]+1000){
-				hits = hits + 1
+			while(j < tmp.size() && value2 < tmp[j]+1000){ // && value2 < tmp[j]+1000){
+				//println "tmp = ${tmp}"
+				//println "j = ${j} | tmp[j] = ${tmp[j]}"
+				//println tmpHits
+				tmpHits = tmpHits + 1
+				//println "Hit: ${value1}"
+				hits.put(value1, tmpHits)
+
 				j = j+1
 			}
 		} else {
-			cnt++
-			tmp = keyList[cnt]
+			//println "Before: value1 = ${value1} | keyList[${cnt}] = ${keyList[cnt]}"
+			if(cnt < keyList.size()){
+				cnt++
+				tmp = annotationMap.get(keyList[cnt])
+				//println "After: value1 = ${value1} | keyList[${cnt}] = ${keyList[cnt]}"
+			}
+			tmpHits = 0
+			j = 0
 		}
+		
 	}
-	println "Hits: ${hits}"
+	//println "Hits: ${hits}"
 }
 
 def readAnnotationFiles(String path){
@@ -72,4 +94,4 @@ def readAnnotationFiles(String path){
 
 
 
-println annotationMap.get("chr1 ")
+//println annotationMap.get("chr1")
