@@ -6,6 +6,7 @@ String samFile = "short2.sam"
 hits = [:]
 keyList = []
 tmpHits = 0
+totalHits = 0
 
 annotationMap = [:]
 def samMap = [:]
@@ -24,7 +25,7 @@ println keyList
 readSamFiles(samFile)
 
 println hits
-println "Total Hits: ${tmpHits}"
+println "Total Hits: ${totalHits}"
 
 def readSamFiles(String path){
 	def map = [:]
@@ -43,17 +44,25 @@ def readSamFiles(String path){
 		//println "value2 = ${value2.toInteger()} | ${value2.toInteger().getClass()} & tmp = ${tmp[0]} | ${tmp[0].getClass()}"
 		if(value1 == keyList[cnt]){
 			value2 = value2.toInteger()
-			while(j < tmp.size() && value2 < tmp[j]-1000){
-				j = j+1
+			/*while(j < tmp.size() && value2 < tmp[j]-1000){
+				//j = j+1
+				//println "Before ${value2}"
+				return
 				//println "Diag: chr = ${value1}|${keyList[cnt]} j = ${j} | tmp[{$j}] = ${tmp[j]} & ${tmp[j].getClass()} | tmp.size = ${tmp.size()}"
+			}*/
+			while(j < tmp.size() && value2 > tmp[j]+1000){
+				j++
 			}
-			while(j < tmp.size() && value2 < tmp[j]+1000){ // && value2 < tmp[j]+1000){
+			while(j < tmp.size() && value2 > tmp[j]-1000 && value2 < tmp[j]+1000){ // && value2 < tmp[j]+1000){
 				//println "tmp = ${tmp}"
 				//println "j = ${j} | tmp[j] = ${tmp[j]}"
 				//println tmpHits
+				//println "After: ${value2}"
 				tmpHits = tmpHits + 1
+				totalHits++
 				//println "Hit: ${value1}"
 				hits.put(value1, tmpHits)
+				//println "Chromosom: ${keyList[cnt]} | Value2: ${value2} | tmp[${j}]: ${tmp[j]}"
 
 				j = j+1
 			}
